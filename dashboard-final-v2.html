@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Gestão de Time</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            padding: 0 30px;
+            overflow-x: auto;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            font-size: 0.9em;
+            padding: 8px 16px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-inactive { background: #f8d7da; color: #721c24; }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-done { background: #d4edda; color: #155724; }
+        .badge-high { background: #f8d7da; color: #721c24; }
+        .badge-medium { background: #fff3cd; color: #856404; }
+        .badge-low { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Dashboard Gestão de Time</h1>
+            <p>Sistema completo de gestão integrado com IA</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="stat-membros">0</h3>
+                <p>Membros Ativos</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-1x1s">0</h3>
+                <p>1:1s Pendentes</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-tarefas">0</h3>
+                <p>Tarefas Abertas</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-projetos">0</h3>
+                <p>Projetos Ativos</p>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="openTab(event, 'membros')">👥 Membros</button>
+            <button class="tab" onclick="openTab(event, '1x1s')">📅 Reuniões 1:1</button>
+            <button class="tab" onclick="openTab(event, 'tarefas')">✅ Tarefas</button>
+            <button class="tab" onclick="openTab(event, 'projetos')">🚀 Projetos</button>
+            <button class="tab" onclick="openTab(event, 'notas')">📝 Notas</button>
+            <button class="tab" onclick="openTab(event, '3cs')">💬 3 Cs</button>
+        </div>
+
+        <!-- Tab Content: Membros -->
+        <div id="membros" class="tab-content active">
+            <div class="alert alert-success" id="alert-membros"></div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="openModal('modal-membro')">➕ Adicionar Membro</button>
+                <button class="btn btn-secondary" onclick="exportarDados('Membros')">📥 Exportar</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Cargo</th>
+                            <th>Área</th>
+                            <th>Nível</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-membros">
+                        <tr><td colspan="7" class="loading">Carregando</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Content: 1:1s -->
+        <div id="1x1s" class="tab-content">
+            <div class="alert alert-success" id="alert-1x1s"></div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="openModal('modal-1x1')">📅 Agendar 1:1</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Membro</th>
+                            <th>Data</th>
+                            <th>Hora</th>
+                            <th>Status</th>
+                            <th>Tópicos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-1x1s">
+                        <tr><td colspan="6" class="loading">Carregando</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Content: Tarefas -->
+        <div id="tarefas" class="tab-content">
+            <div class="alert alert-success" id="alert-tarefas"></div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="openModal('modal-tarefa')">➕ Nova Tarefa</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Responsável</th>
+                            <th>Prioridade</th>
+                            <th>Prazo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-tarefas">
+                        <tr><td colspan="6" class="loading">Carregando</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Content: Projetos -->
+        <div id="projetos" class="tab-content">
+            <div class="alert alert-success" id="alert-projetos"></div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="openModal('modal-projeto')">🚀 Novo Projeto</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Status</th>
+                            <th>Início</th>
+                            <th>Previsão Fim</th>
+                            <th>Membros</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-projetos">
+                        <tr><td colspan="6" class="loading">Carregando</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Content: Notas -->
+        <div id="notas" class="tab-content">
+            <div class="alert alert-success" id="alert-notas"></div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="openModal('modal-nota')">📝 Nova Nota</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Título</th>
+                            <th>Categoria</th>
+                            <th>Tags</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-notas">
+                        <tr><td colspan="5" class="loading">Carregando</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab Content: 3Cs -->
+        <div id="3cs" class="tab-content">
+            <div class="alert alert-success" id="alert-3cs"></div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="openModal('modal-3c')">💬 Nova Avaliação 3C</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Membro</th>
+                            <th>Data</th>
+                            <th>Continuar</th>
+                            <th>Cessar</th>
+                            <th>Começar</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-3cs">
+                        <tr><td colspan="6" class="loading">Carregando</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Modal Membro -->
+    <div id="modal-membro" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-membro')">&times;</span>
+            <h2>Adicionar Membro</h2>
+            <form id="form-membro" onsubmit="salvarMembro(event)">
+                <div class="form-group">
+                    <label>Nome*</label>
+                    <input type="text" name="Nome" required>
+                </div>
+                <div class="form-group">
+                    <label>Email*</label>
+                    <input type="email" name="Email" required>
+                </div>
+                <div class="form-group">
+                    <label>Cargo</label>
+                    <input type="text" name="Cargo">
+                </div>
+                <div class="form-group">
+                    <label>Área</label>
+                    <input type="text" name="Área">
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="tel" name="Telefone">
+                </div>
+                <div class="form-group">
+                    <label>Nível</label>
+                    <select name="Nível">
+                        <option value="">Selecione</option>
+                        <option value="Júnior">Júnior</option>
+                        <option value="Pleno">Pleno</option>
+                        <option value="Sênior">Sênior</option>
+                        <option value="Especialista">Especialista</option>
+                        <option value="Líder">Líder</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="Status">
+                        <option value="Ativo">Ativo</option>
+                        <option value="Férias">Férias</option>
+                        <option value="Afastado">Afastado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Prioridade 1:1</label>
+                    <select name="Prioridade_1x1">
+                        <option value="Alta">Alta</option>
+                        <option value="Média">Média</option>
+                        <option value="Baixa">Baixa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tags</label>
+                    <input type="text" name="Tags" placeholder="Separadas por vírgula">
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea name="Observações"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 1:1 -->
+    <div id="modal-1x1" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-1x1')">&times;</span>
+            <h2>Agendar Reunião 1:1</h2>
+            <form id="form-1x1" onsubmit="salvar1x1(event)">
+                <div class="form-group">
+                    <label>Membro*</label>
+                    <select name="Membro" id="select-membro-1x1" required>
+                        <option value="">Carregando...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data*</label>
+                    <input type="date" name="Data" required>
+                </div>
+                <div class="form-group">
+                    <label>Hora*</label>
+                    <input type="time" name="Hora" required>
+                </div>
+                <div class="form-group">
+                    <label>Tópicos</label>
+                    <textarea name="Tópicos" placeholder="Assuntos a serem discutidos"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Notas</label>
+                    <textarea name="Notas"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="Status">
+                        <option value="Agendada">Agendada</option>
+                        <option value="Realizada">Realizada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tarefa -->
+    <div id="modal-tarefa" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-tarefa')">&times;</span>
+            <h2>Nova Tarefa</h2>
+            <form id="form-tarefa" onsubmit="salvarTarefa(event)">
+                <div class="form-group">
+                    <label>Título*</label>
+                    <input type="text" name="Título" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea name="Descrição"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Responsável</label>
+                    <select name="Responsável" id="select-responsavel-tarefa">
+                        <option value="">Carregando...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Prioridade</label>
+                    <select name="Prioridade">
+                        <option value="Alta">🔴 Alta</option>
+                        <option value="Média">🟡 Média</option>
+                        <option value="Baixa">🟢 Baixa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Prazo</label>
+                    <input type="date" name="Prazo">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="Status">
+                        <option value="Pendente">⏳ Pendente</option>
+                        <option value="Em Andamento">🔄 Em Andamento</option>
+                        <option value="Concluída">✅ Concluída</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Projeto Relacionado</label>
+                    <input type="text" name="Projeto_Relacionado">
+                </div>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Projeto -->
+    <div id="modal-projeto" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-projeto')">&times;</span>
+            <h2>Novo Projeto</h2>
+            <form id="form-projeto" onsubmit="salvarProjeto(event)">
+                <div class="form-group">
+                    <label>Nome*</label>
+                    <input type="text" name="Nome" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea name="Descrição"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="Status">
+                        <option value="Planejamento">📋 Planejamento</option>
+                        <option value="Em Andamento">🔄 Em Andamento</option>
+                        <option value="Pausado">⏸️ Pausado</option>
+                        <option value="Concluído">✅ Concluído</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data Início</label>
+                    <input type="date" name="Data_Inicio">
+                </div>
+                <div class="form-group">
+                    <label>Previsão Fim</label>
+                    <input type="date" name="Previsao_Fim">
+                </div>
+                <div class="form-group">
+                    <label>Membros Envolvidos</label>
+                    <input type="text" name="Membros_Envolvidos" placeholder="Separados por vírgula">
+                </div>
+                <div class="form-group">
+                    <label>Bloqueios</label>
+                    <textarea name="Bloqueios"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Próximos Passos</label>
+                    <textarea name="Proximos_Passos"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nota -->
+    <div id="modal-nota" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-nota')">&times;</span>
+            <h2>Nova Nota</h2>
+            <form id="form-nota" onsubmit="salvarNota(event)">
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" name="Data" value="">
+                </div>
+                <div class="form-group">
+                    <label>Título*</label>
+                    <input type="text" name="Título" required>
+                </div>
+                <div class="form-group">
+                    <label>Conteúdo*</label>
+                    <textarea name="Conteúdo" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select name="Categoria">
+                        <option value="Geral">Geral</option>
+                        <option value="Reunião">Reunião</option>
+                        <option value="Decisão">Decisão</option>
+                        <option value="Ideia">Ideia</option>
+                        <option value="Problema">Problema</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tags</label>
+                    <input type="text" name="Tags" placeholder="Separadas por vírgula">
+                </div>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3C -->
+    <div id="modal-3c" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-3c')">&times;</span>
+            <h2>Nova Avaliação 3C</h2>
+            <form id="form-3c" onsubmit="salvar3C(event)">
+                <div class="form-group">
+                    <label>Membro*</label>
+                    <select name="Membro" id="select-membro-3c" required>
+                        <option value="">Carregando...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data Avaliação</label>
+                    <input type="date" name="Data_Avaliacao">
+                </div>
+                <div class="form-group">
+                    <label>Continuar (O que está indo bem)*</label>
+                    <textarea name="Continuar" required placeholder="Ex: Comunicação proativa, entregas no prazo..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Cessar (O que precisa parar)*</label>
+                    <textarea name="Cessar" required placeholder="Ex: Reuniões longas, interrupções frequentes..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Começar (O que precisa iniciar)*</label>
+                    <textarea name="Começar" required placeholder="Ex: Daily stand-ups, pair programming..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea name="Observações"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // =====================================
+        // CONFIGURAÇÃO - JÁ PREENCHIDA! ✅
+        // =====================================
+        const API_URL = 'https://script.google.com/a/macros/ifood.com.br/s/AKfycby-JycUYaDJm-9bAMazR3ZyYPFiVadJ0BksgATJOQ4GBqD_a4XwLOW74-qn6mPIqiHrxA/exec';
+
+        // =====================================
+        // INICIALIZAÇÃO
+        // =====================================
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarTodosDados();
+            setDataAtual();
+        });
+
+        function setDataAtual() {
+            const hoje = new Date().toISOString().split('T')[0];
+            const inputsData = document.querySelectorAll('input[type="date"]');
+            inputsData.forEach(input => {
+                if (!input.value && input.name !== 'Prazo' && input.name !== 'Previsao_Fim') {
+                    input.value = hoje;
+                }
+            });
+        }
+
+        // =====================================
+        // TABS
+        // =====================================
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let content of tabContents) {
+                content.classList.remove('active');
+            }
+
+            const tabs = document.getElementsByClassName('tab');
+            for (let tab of tabs) {
+                tab.classList.remove('active');
+            }
+
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // =====================================
+        // MODALS
+        // =====================================
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            
+            if (modalId === 'modal-1x1' || modalId === 'modal-3c') {
+                carregarOpcoesMembros();
+            }
+            if (modalId === 'modal-tarefa') {
+                carregarOpcoesResponsavel();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.getElementById('form-' + modalId.replace('modal-', '')).reset();
+        }
+
+        // =====================================
+        // API CALLS
+        // =====================================
+        async function apiCall(action, tab, data = null) {
+            try {
+                const payload = {
+                    action: action,
+                    tab: tab,
+                    data: data
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Erro na API:', error);
+                showAlert('error', 'Erro ao comunicar com o servidor');
+                return { success: false, data: null };
+            }
+        }
+
+        // =====================================
+        // CARREGAR DADOS
+        // =====================================
+        async function carregarTodosDados() {
+            await carregarMembros();
+            await carregar1x1s();
+            await carregarTarefas();
+            await carregarProjetos();
+            await carregarNotas();
+            await carregar3Cs();
+            atualizarStats();
+        }
+
+        async function carregarMembros() {
+            const result = await apiCall('readAll', 'Membros');
+            if (result.success && result.data) {
+                renderizarTabelaMembros(result.data);
+            }
+        }
+
+        async function carregar1x1s() {
+            const result = await apiCall('readAll', 'Reunioes_1x1');
+            if (result.success && result.data) {
+                renderizarTabela1x1s(result.data);
+            }
+        }
+
+        async function carregarTarefas() {
+            const result = await apiCall('readAll', 'Tarefas');
+            if (result.success && result.data) {
+                renderizarTabelaTarefas(result.data);
+            }
+        }
+
+        async function carregarProjetos() {
+            const result = await apiCall('readAll', 'Projetos');
+            if (result.success && result.data) {
+                renderizarTabelaProjetos(result.data);
+            }
+        }
+
+        async function carregarNotas() {
+            const result = await apiCall('readAll', 'Notas');
+            if (result.success && result.data) {
+                renderizarTabelaNotas(result.data);
+            }
+        }
+
+        async function carregar3Cs() {
+            const result = await apiCall('readAll', '3Cs');
+            if (result.success && result.data) {
+                renderizarTabela3Cs(result.data);
+            }
+        }
+
+        // =====================================
+        // RENDERIZAR TABELAS
+        // =====================================
+        function renderizarTabelaMembros(dados) {
+            const tbody = document.getElementById('table-membros');
+            if (!dados || dados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum membro cadastrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.map((membro, index) => `
+                <tr>
+                    <td>${membro.Nome || ''}</td>
+                    <td>${membro.Email || ''}</td>
+                    <td>${membro.Cargo || ''}</td>
+                    <td>${membro.Área || ''}</td>
+                    <td>${membro.Nível || ''}</td>
+                    <td><span class="badge badge-${membro.Status === 'Ativo' ? 'active' : 'inactive'}">${membro.Status || ''}</span></td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deletarRegistro('Membros', ${membro.rowIndex})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarTabela1x1s(dados) {
+            const tbody = document.getElementById('table-1x1s');
+            if (!dados || dados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Nenhuma reunião agendada</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.map(item => `
+                <tr>
+                    <td>${item.Membro || ''}</td>
+                    <td>${item.Data || ''}</td>
+                    <td>${item.Hora || ''}</td>
+                    <td><span class="badge badge-${item.Status === 'Realizada' ? 'done' : 'pending'}">${item.Status || ''}</span></td>
+                    <td>${item.Tópicos || ''}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deletarRegistro('Reunioes_1x1', ${item.rowIndex})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarTabelaTarefas(dados) {
+            const tbody = document.getElementById('table-tarefas');
+            if (!dados || dados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Nenhuma tarefa cadastrada</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.map(item => `
+                <tr>
+                    <td>${item.Título || ''}</td>
+                    <td>${item.Responsável || ''}</td>
+                    <td><span class="badge badge-${item.Prioridade === 'Alta' ? 'high' : item.Prioridade === 'Média' ? 'medium' : 'low'}">${item.Prioridade || ''}</span></td>
+                    <td>${item.Prazo || ''}</td>
+                    <td><span class="badge badge-${item.Status === 'Concluída' ? 'done' : 'pending'}">${item.Status || ''}</span></td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deletarRegistro('Tarefas', ${item.rowIndex})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarTabelaProjetos(dados) {
+            const tbody = document.getElementById('table-projetos');
+            if (!dados || dados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Nenhum projeto cadastrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.map(item => `
+                <tr>
+                    <td>${item.Nome || ''}</td>
+                    <td><span class="badge badge-${item.Status === 'Concluído' ? 'done' : 'pending'}">${item.Status || ''}</span></td>
+                    <td>${item.Data_Inicio || ''}</td>
+                    <td>${item.Previsao_Fim || ''}</td>
+                    <td>${item.Membros_Envolvidos || ''}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deletarRegistro('Projetos', ${item.rowIndex})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarTabelaNotas(dados) {
+            const tbody = document.getElementById('table-notas');
+            if (!dados || dados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Nenhuma nota cadastrada</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.map(item => `
+                <tr>
+                    <td>${item.Data || ''}</td>
+                    <td>${item.Título || ''}</td>
+                    <td>${item.Categoria || ''}</td>
+                    <td>${item.Tags || ''}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deletarRegistro('Notas', ${item.rowIndex})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarTabela3Cs(dados) {
+            const tbody = document.getElementById('table-3cs');
+            if (!dados || dados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Nenhuma avaliação cadastrada</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.map(item => `
+                <tr>
+                    <td>${item.Membro || ''}</td>
+                    <td>${item.Data_Avaliacao || ''}</td>
+                    <td>${(item.Continuar || '').substring(0, 50)}...</td>
+                    <td>${(item.Cessar || '').substring(0, 50)}...</td>
+                    <td>${(item.Começar || '').substring(0, 50)}...</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deletarRegistro('3Cs', ${item.rowIndex})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // =====================================
+        // SALVAR REGISTROS
+        // =====================================
+        async function salvarMembro(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            const result = await apiCall('create', 'Membros', data);
+            
+            if (result.success) {
+                showAlert('success', 'Membro cadastrado com sucesso!', 'alert-membros');
+                closeModal('modal-membro');
+                await carregarMembros();
+                atualizarStats();
+            }
+        }
+
+        async function salvar1x1(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            const result = await apiCall('create', 'Reunioes_1x1', data);
+            
+            if (result.success) {
+                showAlert('success', 'Reunião agendada com sucesso!', 'alert-1x1s');
+                closeModal('modal-1x1');
+                await carregar1x1s();
+                atualizarStats();
+            }
+        }
+
+        async function salvarTarefa(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            const result = await apiCall('create', 'Tarefas', data);
+            
+            if (result.success) {
+                showAlert('success', 'Tarefa criada com sucesso!', 'alert-tarefas');
+                closeModal('modal-tarefa');
+                await carregarTarefas();
+                atualizarStats();
+            }
+        }
+
+        async function salvarProjeto(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            const result = await apiCall('create', 'Projetos', data);
+            
+            if (result.success) {
+                showAlert('success', 'Projeto criado com sucesso!', 'alert-projetos');
+                closeModal('modal-projeto');
+                await carregarProjetos();
+                atualizarStats();
+            }
+        }
+
+        async function salvarNota(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            const result = await apiCall('create', 'Notas', data);
+            
+            if (result.success) {
+                showAlert('success', 'Nota salva com sucesso!', 'alert-notas');
+                closeModal('modal-nota');
+                await carregarNotas();
+            }
+        }
+
+        async function salvar3C(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            const result = await apiCall('create', '3Cs', data);
+            
+            if (result.success) {
+                showAlert('success', 'Avaliação 3C salva com sucesso!', 'alert-3cs');
+                closeModal('modal-3c');
+                await carregar3Cs();
+            }
+        }
+
+        // =====================================
+        // DELETAR REGISTRO
+        // =====================================
+        async function deletarRegistro(tabName, rowIndex) {
+            if (!confirm('Tem certeza que deseja deletar este registro?')) {
+                return;
+            }
+
+            const result = await apiCall('delete', tabName, { id: rowIndex });
+            
+            if (result.success) {
+                showAlert('success', 'Registro deletado com sucesso!');
+                carregarTodosDados();
+            }
+        }
+
+        // =====================================
+        // CARREGAR OPÇÕES DE MEMBROS
+        // =====================================
+        async function carregarOpcoesMembros() {
+            const result = await apiCall('readAll', 'Membros');
+            if (result.success && result.data) {
+                const select1x1 = document.getElementById('select-membro-1x1');
+                const select3c = document.getElementById('select-membro-3c');
+                
+                const options = result.data
+                    .filter(m => m.Nome)
+                    .map(m => `<option value="${m.Nome}">${m.Nome}</option>`)
+                    .join('');
+                
+                if (select1x1) select1x1.innerHTML = '<option value="">Selecione</option>' + options;
+                if (select3c) select3c.innerHTML = '<option value="">Selecione</option>' + options;
+            }
+        }
+
+        async function carregarOpcoesResponsavel() {
+            const result = await apiCall('readAll', 'Membros');
+            if (result.success && result.data) {
+                const select = document.getElementById('select-responsavel-tarefa');
+                
+                const options = result.data
+                    .filter(m => m.Nome)
+                    .map(m => `<option value="${m.Nome}">${m.Nome}</option>`)
+                    .join('');
+                
+                select.innerHTML = '<option value="">Selecione</option>' + options;
+            }
+        }
+
+        // =====================================
+        // STATS
+        // =====================================
+        async function atualizarStats() {
+            const membros = await apiCall('readAll', 'Membros');
+            const oneOnOnes = await apiCall('readAll', 'Reunioes_1x1');
+            const tarefas = await apiCall('readAll', 'Tarefas');
+            const projetos = await apiCall('readAll', 'Projetos');
+
+            document.getElementById('stat-membros').textContent = 
+                membros.data ? membros.data.filter(m => m.Status === 'Ativo').length : 0;
+            
+            document.getElementById('stat-1x1s').textContent = 
+                oneOnOnes.data ? oneOnOnes.data.filter(o => o.Status === 'Agendada').length : 0;
+            
+            document.getElementById('stat-tarefas').textContent = 
+                tarefas.data ? tarefas.data.filter(t => t.Status !== 'Concluída').length : 0;
+            
+            document.getElementById('stat-projetos').textContent = 
+                projetos.data ? projetos.data.filter(p => p.Status === 'Em Andamento').length : 0;
+        }
+
+        // =====================================
+        // EXPORTAR DADOS
+        // =====================================
+        async function exportarDados(tabName) {
+            const result = await apiCall('readAll', tabName);
+            
+            if (!result.success || !result.data) {
+                alert('Nenhum dado para exportar');
+                return;
+            }
+
+            const data = result.data;
+            const headers = Object.keys(data[0]).filter(k => k !== 'rowIndex');
+            
+            let csv = headers.join(',') + '\n';
+            csv += data.map(row => 
+                headers.map(h => `"${(row[h] || '').toString().replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${tabName}_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        // =====================================
+        // ALERTS
+        // =====================================
+        function showAlert(type, message, alertId = null) {
+            const alerts = alertId ? [document.getElementById(alertId)] : document.querySelectorAll('.alert');
+            
+            alerts.forEach(alert => {
+                if (alert) {
+                    alert.className = 'alert alert-' + (type === 'success' ? 'success' : 'error');
+                    alert.textContent = message;
+                    alert.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
